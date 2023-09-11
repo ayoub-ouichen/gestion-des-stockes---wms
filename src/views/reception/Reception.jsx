@@ -1,6 +1,5 @@
 import React from 'react'
-import Table from '../compontent/addReception'
-import Tabs from '../compontent/tabs'
+import Tabs from '../compontent/forReception/tabs'
 
 export default function Reception() {
   return (

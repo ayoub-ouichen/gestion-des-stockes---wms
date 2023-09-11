@@ -1,10 +1,10 @@
 import PRODUCTS from 'src/products'
-import API from '../../services/api'
+import API from '../../../services/api'
 import React, { useState } from 'react'
 import Swal from 'sweetalert2/src/sweetalert2.js'
 import { Product } from 'src/classes/product'
 
-export default function AddReception() {
+export default function AddTransfert() {
     const URL = 'http://localhost:3642/'
     let tab = []
     for (let index = 0; index < 5; index++) {
@@ -13,14 +13,14 @@ export default function AddReception() {
     }
     const [tableData, setTableData] = useState(tab);
     const [productList, setProductList] = useState([]);
-    const [fournisseurs, setFournisseurs] = useState([]);
+    const [tampons, setTampons] = useState([]);
     const [entrepots, setEntrepots] = useState([]);
 
-    if(fournisseurs.length == 0) {
-        API.get(URL + 'staticdata/getFournisseurs')
+    if(tampons.length == 0) {
+        API.get(URL + 'staticdata/getTampons')
         .then(function (response) {
         // handle success
-        setFournisseurs(response.data);
+        setTampons(response.data);
         })
         .catch(function (error) {
         // handle error
@@ -62,7 +62,6 @@ export default function AddReception() {
         }
         let tableDataCopy = tableData.slice()
         tableDataCopy[index2][column] = e
-        tableDataCopy[index2]['valeur'] = tableDataCopy[index2]['prix'] * tableDataCopy[index2]['quantite']
         setTableData(tableDataCopy)
     }
 
@@ -82,11 +81,11 @@ export default function AddReception() {
         var go = true;
         let tableDataCopy = tableData.filter(predicate => predicate.id !== "")
         tableDataCopy.forEach(value => {
-            if(value.id !== '' && value.valeur == 0) {
+            if(value.id !== '' && value.quantite == 0) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
-                    text: 'La valeur du ' + value.name + ' égale à zéro'
+                    text: 'La quantité du ' + value.name + ' égale à zéro'
                   })
                 go = false
             }
@@ -96,15 +95,15 @@ export default function AddReception() {
             const format = dateActuelle.toLocaleString();
             tableDataCopy.forEach(value => value.date_heure = format)
             tableDataCopy.forEach(value => {
-                if (value.fournisseur == '') {
-                    value.fournisseur = fournisseurs[0]['id']
+                if (value.tampon == '') {
+                    value.tampon = tampons[0]['id']
                 }
 
                 if (value.entrepot == '') {
                     value.entrepot = entrepots[0]['id']
                 }
             })
-            API.post(URL + 'reception/addReception', tableDataCopy)
+            API.post(URL + 'transfert/addTransfert', tableDataCopy)
             .then(function (response) {
                 if(response.status == 200) {
                     Swal.fire({
@@ -151,11 +150,11 @@ export default function AddReception() {
                 </div>
                 <div className="col">
                     <div className="input-group mb-3">
-                        <label className="input-group-text" htmlFor="inputGroupSelect02">Fournisseur : </label>
-                        <select onChange={(e) => handleSelectClick(e.target.value, 'fournisseur')} className="form-select" id="inputGroupSelect02">
+                        <label className="input-group-text" htmlFor="inputGroupSelect02">Tampon : </label>
+                        <select onChange={(e) => handleSelectClick(e.target.value, 'tampon')} className="form-select" id="inputGroupSelect02">
                             {
-                                fournisseurs.map(ifournisseur => {
-                                    return <option key={ifournisseur.id} value={ifournisseur.id}>{ifournisseur.name}</option>
+                                tampons.map(itampon => {
+                                    return <option key={itampon.id} value={itampon.id}>{itampon.name}</option>
                                 })
                             }
                         </select>
@@ -169,8 +168,6 @@ export default function AddReception() {
                             <th scope={"col"}>ID</th>
                             <th scope={"col"}>Produit</th>
                             <th scope={"col"}>Quantité</th>
-                            <th scope={"col"}>Prix</th>
-                            <th scope={"col"}>Valeur</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -183,7 +180,7 @@ export default function AddReception() {
                                             <datalist id={'#01' + index}>
                                                 {
                                                     productList.map(product => {
-                                                        return <option value={product.id}>{product.id}</option>
+                                                        return <option key={product.id} value={product.id}>{product.id}</option>
                                                     })
                                                 }
                                             </datalist>
@@ -193,14 +190,12 @@ export default function AddReception() {
                                             <datalist id={'#02' + index}>
                                                 {
                                                     productList.map(product => {
-                                                        return <option value={product.name}>{product.name}</option>
+                                                        return <option key={product.name} value={product.name}>{product.name}</option>
                                                     })
                                                 }
                                             </datalist>
                                         </td>
                                         <td><input key={index} onChange={e => handleChanges(e.target.value, 'quantite', index)} value={value.quantite} className="form-control border-0" type="number" /></td>
-                                        <td><input key={index} onChange={e => handleChanges(e.target.value, 'prix', index)} value={value.prix} className="form-control border-0" type="number" /></td>
-                                        <td><input key={index} value={value.valeur} className="form-control border-0" type="text" readOnly={true} /></td>
                                     </tr>
                                 )
                             })

@@ -13,10 +13,32 @@ router.get('/getFournisseurs', async (req, res) => {
     }
 });
 
+router.get('/getTampons', async (req, res) => {
+    try {
+        const db = await connectDatabase();
+        const req = await db.collection('tampons').find({}).toArray()
+        res.status(200).send(req);
+    } catch (err) {
+        console.error('Error getting products:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 router.get('/getEntrepots', async (req, res) => {
     try {
         const db = await connectDatabase();
         const req = await db.collection('entrepots').find({}).toArray()
+        res.status(200).send(req);
+    } catch (err) {
+        console.error('Error getting products:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+router.get('/getInventaires', async (req, res) => {
+    try {
+        const db = await connectDatabase();
+        const req = await db.collection('inventaires').find({}).toArray()
         res.status(200).send(req);
     } catch (err) {
         console.error('Error getting products:', err);

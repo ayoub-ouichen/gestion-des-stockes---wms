@@ -1,32 +1,17 @@
 import React, { useState } from 'react'
-import API from '../../services/api'
+import API from '../../../services/api'
+import { CSpinner } from '@coreui/react';
 
-export default function ListReception() {
+export default function ListInventaire() {
     const URL = 'http://localhost:3642/'
-    const [fournisseurs, setFournisseurs] = useState([]);
     const [entrepots, setEntrepots] = useState([]);
-    const [receptions, setReceptions] = useState([]);
+    const [inventaire, setInventaires] = useState([]);
+    const [displaySpinner, setDisplaySpinner] = useState(false);
     let p = {
-        fournisseur_id : '',
         entrepot_id : '',
         date_heure : ''
     }
     const [parametres, setParametres] = useState(p)
-
-    if(fournisseurs.length == 0) {
-        API.get(URL + 'staticdata/getFournisseurs')
-        .then(function (response) {
-        // handle success
-        setFournisseurs(response.data);
-        })
-        .catch(function (error) {
-        // handle error
-        console.log(error);
-        })
-        .finally(function () {
-        // always executed
-        });
-    }
 
     if (entrepots.length == 0) {
         API.get(URL + 'staticdata/getEntrepots')
@@ -43,18 +28,19 @@ export default function ListReception() {
         });
     }
 
-    function getReceptions() {
-        API.post(URL + 'reception/getReceptions',parametres)
+    function getInventaires() {
+        setDisplaySpinner(true)
+        API.post(URL + 'inventaire/getInventaires',parametres)
         .then(function (response) {
             // handle success
-            setReceptions(response.data);
+            setInventaires(response.data);
         })
         .catch(function (error) {
             // handle error
             console.log(error);
         })
         .finally(function () {
-            // always executed
+            setDisplaySpinner(false)
         });
     }
 
@@ -62,7 +48,7 @@ export default function ListReception() {
         let parametresCopy = parametres
         parametresCopy[index] = value
         setParametres(parametresCopy)
-        getReceptions()
+        getInventaires()
     }
 
     if (parametres === p) {
@@ -71,7 +57,7 @@ export default function ListReception() {
         let parametresCopy = parametres
         parametresCopy['date_heure'] = formattedDate
         setParametres(parametresCopy)
-        getReceptions()
+        getInventaires()
     }
 
   return (
@@ -91,24 +77,11 @@ export default function ListReception() {
                 </div>
             </div>
             <div className="col">
-                <div className="input-group mb-3">
-                    <label className="input-group-text" htmlFor="inputGroupSelect02">Fournisseur : </label>
-                    <select onChange={(e) => handleSelectClick(e.target.value, 'fournisseur_id')} className="form-select" id="inputGroupSelect02">
-                        <option key={1111} value={''}>--- Vide ---</option>
-                        {
-                            fournisseurs.map(ifournisseur => {
-                                return <option key={ifournisseur.id} value={ifournisseur.id}>{ifournisseur.name}</option>
-                            })
-                        }
-                    </select>
+            <div className="input-group mb-3">
+                <div className="input-group-prepend">
+                <span className="input-group-text">Journée : </span>
                 </div>
-            </div>
-            <div class="col">
-            <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                <span class="input-group-text">Journée : </span>
-                </div>
-                <input onChange={(e) => handleSelectClick(e.target.value, 'date_heure')} formControlName="date_publication" type="date" class="form-control" id="from-date" aria-describedby="date-design-prepend" />
+                <input value={ parametres.date_heure } onChange={(e) => handleSelectClick(e.target.value, 'date_heure')} type="date" className="form-control" id="from-date" aria-describedby="date-design-prepend" />
             </div>
             </div>
         </div>
@@ -120,25 +93,22 @@ export default function ListReception() {
                         <th scope={"col"}>ID Produit</th>
                         <th scope={"col"}>Produit</th>
                         <th scope={"col"}>Quantité</th>
-                        <th scope={"col"}>Prix</th>
-                        <th scope={"col"}>Valeur</th>
                         <th scope={"col"}>Entrepot</th>
-                        <th scope={"col"}>Fournisseur</th>
                     </tr>
                 </thead>
                 <tbody>
                     {
-                        receptions.map((reception, index) => {
+                        displaySpinner === true ?
+                        <tr><td colSpan={6}><CSpinner /></td></tr>
+                        :
+                        inventaire.map((inventaire, index) => {
                             return (
                                 <tr key={index}>
-                                    <td>{reception.date_heure}</td>
-                                    <td>{reception.id}</td>
-                                    <td>{reception.name}</td>
-                                    <td>{reception.quantite}</td>
-                                    <td>{reception.prix}</td>
-                                    <td>{reception.valeur}</td>
-                                    <td>{reception.ifournisseurs[0].name}</td>
-                                    <td>{reception.ientrepots[0].name}</td>
+                                    <td>{inventaire.date_heure}</td>
+                                    <td>{inventaire.id}</td>
+                                    <td>{inventaire.name}</td>
+                                    <td>{inventaire.quantite}</td>
+                                    <td>{inventaire.ientrepots[0].name}</td>
                                 </tr>
                             )
                         })

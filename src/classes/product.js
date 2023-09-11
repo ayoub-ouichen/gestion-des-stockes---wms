@@ -8,5 +8,6 @@ export class Product {
         this.date_heure = '';
         this.fournisseur = '';
         this.entrepot = '';
+        this.tampon = '';
     }
 }
